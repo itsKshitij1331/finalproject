@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <title>Sort Visualizer</title>
+    <link rel="stylesheet" href="pbl.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="shortcut icon" href="/static/images/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <script src="visualization.js"></script>
+
+    <style>
+        
+    </style>
+</head>
+<body>
+
+        <div class="topnav">
+            <button class="sidenav-btn topnav-element ripple open" id="sidenav-menu"  onclick="togglebar()">
+              <i class="material-icons icon">menu</i>
+            </button>
+            
+            <a href="/" class="topnav-element">SORT VISUALIZER</a>
+             
+        </div>
+        <div class="sidebar">
+           
+
+            <div class="allsorts">
+
+                <div class="gap1"></div>
+                <div class="heading">SORTS</div>
+                <div class="gap1"></div>
+                <div class="one">QUICK SORT</div>
+                <div class="gap"></div>
+                <div class="two">MERGE SORT</div>
+                <div class="gap"></div>
+                <div class="three">BUBBLE SORT</div>
+                <div class="gap"></div>
+                <div class="four">INSERTION SORT</div>
+                <div class="gap"></div>
+                <div class="five">SELECTION SORT</div>
+            </div>
+            
+            
+
+        </div>
+        <div id="header">
+            <span id="first-header">SORT</span><br>
+            <span id="second-header">VISUALIZER</span>
+        </div>
+
+
+        <script>
+
+            const togglebar=()=>{
+                const sidebar = document.querySelector(".sidebar");
+                const isOpen = sidebar.classList.contains("open");
+
+                if (!isOpen) {
+                    sidebar.classList.add("open");
+                    document.body.addEventListener("click",closeSidebar);
+                } else {
+                    sidebar.classList.remove("open");
+                    document.body.removeEventListener("click",closeSidebar);
+                }
+            }
+            
+            const minDelay = 700;
+            const maxDelay = 900;
+            const minLetters =5;
+            const maxLetters =18;
+            const delay = 50;
+            const startAscii = 65;
+            const endAscii = 91;
+            const title = {
+                "first-header": "SORT",
+                "second-header": "VISUALIZER"
+            };
+    
+            document.getElementById("header").onclick = headerAnimation;
+            headerAnimation();
+    
+            function oneHeaderAnimation(whichId) {
+                document.getElementById(whichId).innerHTML.split("").forEach((item, i) => {
+                    letterAnimation(whichId, item, i);
+                });
+            }
+    
+            function headerAnimation() {
+                oneHeaderAnimation('first-header');
+                oneHeaderAnimation('second-header');
+            }
+    
+            async function letterAnimation(child, letter, i) {
+                await sleep(Math.floor(Math.random() * minDelay) + maxDelay - minDelay);
+                let rand = Math.floor(Math.random() * minLetters) + maxLetters - minLetters;
+                let target = [];
+    
+                for (let k = 0; k < rand; k++) target.push(randomLetter());
+    
+                target.push(title[child][i]);
+    
+                for (let j = 0; j < target.length; j++) {
+                    changeLetter(child, target[j], i);
+                    await sleep(delay); 
+                }
+            }
+    
+            function randomLetter() {
+                return String.fromCharCode(startAscii + Math.floor(Math.random() * (endAscii - startAscii)));
+            }
+    
+            function changeLetter(child, repl, i) {
+                child = document.getElementById(child);
+                let temp = child.innerHTML;
+                child.innerHTML = temp.substr(0, i) + repl + temp.substr(i + 1);
+            }
+    
+            function sleep(delay) {
+                return new Promise(resolve => {
+                    setTimeout(resolve, delay);
+                });
+            }
+        </script> 
+       
+        <script>
+           
+        function openPage(url) {
+        
+            window.location.href = url;
+        }
+
+
+    var quickSortElements = document.getElementsByClassName("one");
+    for (var i = 0; i < quickSortElements.length; i++) {
+        quickSortElements[i].addEventListener("click", function() {
+            openPage("quicksort.html");
+        });
+    }
+
+    var mergeSortElements = document.getElementsByClassName("two");
+    for (var i = 0; i < mergeSortElements.length; i++) {
+        mergeSortElements[i].addEventListener("click", function() {
+            openPage("mergesort.html");
+        });
+    }
+
+    var bubbleSortElements = document.getElementsByClassName("three");
+    for (var i = 0; i < bubbleSortElements.length; i++) {
+        bubbleSortElements[i].addEventListener("click", function() {
+            openPage("bubblesort.html");
+        });
+    }
+
+    var insertionSortElements = document.getElementsByClassName("four");
+    for (var i = 0; i < insertionSortElements.length; i++) {
+        insertionSortElements[i].addEventListener("click", function() {
+            openPage("insertionsort.html");
+        });
+    }
+
+    var selectionSortElements = document.getElementsByClassName("five");
+    for (var i = 0; i < selectionSortElements.length; i++) {
+        selectionSortElements[i].addEventListener("click", function() {
+            openPage("selection.html");
+        });
+    }
+</script>
+
+
+
+
+    
+</body>
+</html>
