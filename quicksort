@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jersey+15&family=Jersey+20+Charted&display=swap" rel="stylesheet">
+    <title>Quick Sort Visualization</title>
+    <style>
+    
+        
+        header {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        #container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            width: 100%;
+            height: 300px;
+            background-color: #f0f0f0;
+            margin-bottom: 20px;
+        }
+        .bar {
+            position: relative;
+            width: 20px; 
+            margin: 0 1px;
+            background-color: #4CAF50;
+            text-align: center;
+            transition: height 0.3s, background-color 0.3s;
+        }
+        .bar:hover {
+            background-color: #2E8B57;
+        }
+        .bar span {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: white;
+        }
+       
+        #stack-container {
+            margin: 0 auto; 
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 300px;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+        .stack-item {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 3px;
+            background-color: #ddd;
+        }
+        .stack-level-1 {
+            background-color: #d6e9c6;
+        }
+        .stack-level-2 {
+            background-color: #faebcc;
+        }
+        .stack-level-3 {
+            background-color: #ebccd1;
+        }
+        
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        .stack-header{
+            margin-top: 100px;
+            color: green;
+            text-align: center;
+        }
+        h1{
+            
+            font-family: "Jersey 15", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            
+        }
+        .controls{
+            margin-left: 500px;
+            margin-top:55px; 
+        }
+                   
+
+
+       
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>QUICK SORT VISUALIZATION</h1>
+        <h3>Time Complexity : O(n*log(n))</h3>
+        <h3>Space Complexity : O(n)</h3>
+        
+    </header>
+    <div id="container"></div>
+    <div class="controls">
+        <label for="array-size">Array Size:</label>
+        <input type="number" id="array-size" min="1" value="11">
+        <button onclick="startSort()">Start Sort</button>
+        <button onclick="unsortData()">Unsort Data</button>
+        <input type="range" id="speed-slider" min="1" max="100" value="50" onchange="setSpeed(this.value)">
+        <output for="speed-slider" id="speed-output">50</output>
+    </div>
+    <h4 class="stack-header">Stack Visualization</h4>
+    <div id="stack-container"></div>
+    <div id="chart-container">
+        <canvas id="chart"></canvas>
+    </div>
+    <footer>
+        <p>&copy; 2024 Quick Sort Visualization</p>
+       
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- <script>
+       function goToHomePage() {
+           
+            window.location.href = "http://127.0.0.1:5500/oldcode.html";
+        }
+
+        
+    </script> -->
+    <script>
+        let sortingSpeed = 30; 
+        let stackContainer = document.getElementById('stack-container');
+
+        function setSpeed(speed) {
+            sortingSpeed = speed;
+            document.getElementById('speed-output').textContent = speed;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function partition(arr, low, high) {
+            let pivot = arr[high];
+            let i = low - 1;
+            for (let j = low; j < high; j++) {
+                if (arr[j] < pivot) {
+                    i++;
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                    await drawBars(arr, j, i, high); // Pass indexes of bars being compared
+                }
+            }
+            [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
+            await drawBars(arr, high, i + 1, high); // Pass pivot index
+            return i + 1;
+        }
+
+        async function quickSort(arr, low, high, level = 1) {
+            let stack = [];
+            stack.push({ low, high, level });
+            while (stack.length) {
+                let { low, high, level } = stack.pop();
+                if (low < high) {
+                    let pi = await partition(arr, low, high);
+                    stack.push({ low, high: pi - 1, level: level + 1 });
+                    stack.push({ low: pi + 1, high, level: level + 1 });
+                    updateStack(stack, level); // Update stack visualization
+                    await sleep(sortingSpeed);
+                }
+            }
+        }
+
+        async function drawBars(arr, currIndex1, currIndex2, pivotIndex) {
+            const container = document.getElementById('container');
+            container.innerHTML = ''; // Clear container
+            const containerHeight = container.clientHeight; // Height of the container
+            const maxVal = Math.max(...arr); // Maximum value in the array
+            for (let i = 0; i < arr.length; i++) {
+                let barHeight = (arr[i] / maxVal) * containerHeight;
+                let bar = document.createElement('div');
+                bar.classList.add('bar');
+                bar.style.height = `${barHeight}px`;
+                if (i === currIndex1 || i === currIndex2) {
+                    bar.style.backgroundColor = 'orange'; // Color bars being compared
+                } else if (i === pivotIndex) {
+                    bar.style.backgroundColor = 'red'; // Color pivot bar
+                } else {
+                    bar.style.backgroundColor = '#4CAF50'; 
+                }
+                let span = document.createElement('span');
+                span.textContent = arr[i]; 
+                bar.appendChild(span);
+                container.appendChild(bar);
+            }
+            await sleep(sortingSpeed); 
+        }
+
+        async function startSort() {
+            const arraySize = document.getElementById('array-size').value;
+            const arr = Array.from({ length: arraySize }, () => Math.floor(Math.random() * 100) + 1);
+            await drawBars(arr); 
+            await quickSort(arr, 0, arr.length - 1);
+        }
+
+        async function unsortData() {
+            const arraySize = document.getElementById('array-size').value;
+            const arr = Array.from({ length: arraySize }, () => Math.floor(Math.random() * 100) + 1);
+            await drawBars(arr); 
+        }
+
+        function updateStack(stack, level) {
+            stackContainer.innerHTML = ''; 
+            stack.forEach((item, index) => {
+                let stackItem = document.createElement('div');
+                stackItem.classList.add('stack-item');
+                stackItem.classList.add(`stack-level-${item.level}`);
+                stackItem.textContent = `Call ${index + 1}: low = ${item.low}, high = ${item.high}`;
+                stackContainer.appendChild(stackItem);
+            });
+        }
+    </script>
+</body>
+</html>
