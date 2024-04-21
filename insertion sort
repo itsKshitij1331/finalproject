@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jersey+15&family=Jersey+20+Charted&display=swap" rel="stylesheet">
+    <title>Insertion Sort Visualization</title>
+    <style>
+       
+        header {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+       
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        #container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            width: 100%;
+            height: 300px;
+            background-color: #f0f0f0;
+            margin-bottom: 20px;
+        }
+        .bar {
+            position: relative;
+            width: 20px;
+            margin: 0 1px;
+            background-color: #4CAF50;
+            text-align: center;
+            transition: height 0.3s, background-color 0.3s;
+        }
+        .bar:hover {
+            background-color: #2E8B57;
+        }
+        .bar span {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: white;
+        }
+       
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        h1{
+            
+            font-family: "Jersey 15", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Insertion Sort Visualization</h1>
+    </header>
+    <div id="container"></div>
+    <div class="controls">
+        <label for="array-size">Array Size:</label>
+        <input type="number" id="array-size" min="1" value="11">
+        <button onclick="startSort()">Start Sort</button>
+        <button onclick="unsortData()">Unsort Data</button>
+        <input type="range" id="speed-slider" min="1" max="100" value="50" onchange="setSpeed(this.value)">
+        <output for="speed-slider" id="speed-output">50</output>
+    </div>
+    <footer>
+        <p>&copy; 2024 Insertion Sort Visualization</p>
+    </footer>
+    
+    <script>
+        let sortingSpeed = 50; 
+
+        function setSpeed(speed) {
+            sortingSpeed = speed;
+            document.getElementById('speed-output').textContent = speed;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function insertionSort(arr) {
+            const n = arr.length;
+            for (let i = 1; i < n; i++) {
+                let key = arr[i];
+                let j = i - 1;
+                while (j >= 0 && arr[j] > key) {
+                    arr[j + 1] = arr[j];
+                    j = j - 1;
+                    await drawBars(arr, j + 1, i); 
+                    await sleep(sortingSpeed);
+                }
+                arr[j + 1] = key;
+                await drawBars(arr, j + 1, i); 
+                await sleep(sortingSpeed);
+            }
+        }
+
+        async function drawBars(arr, highlightedIndex, currentIndex) {
+            const container = document.getElementById('container');
+            container.innerHTML = ''; 
+            const containerHeight = container.clientHeight; 
+            const maxVal = Math.max(...arr); 
+            for (let i = 0; i < arr.length; i++) {
+                let barHeight = (arr[i] / maxVal) * containerHeight;
+                let bar = document.createElement('div');
+                bar.classList.add('bar');
+                bar.style.height = `${barHeight}px`;
+                if (i === highlightedIndex) {
+                    bar.style.backgroundColor = '#FFA500';
+                } else if (i <= currentIndex) {
+                    bar.style.backgroundColor = '#FFD700'; 
+                } else {
+                    bar.style.backgroundColor = '#4CAF50'; 
+                }
+                let span = document.createElement('span');
+                span.textContent = arr[i]; 
+                bar.appendChild(span);
+                container.appendChild(bar);
+            }
+        }
+
+        async function startSort() {
+            const arraySize = document.getElementById('array-size').value;
+            const arr = Array.from({ length: arraySize }, () => Math.floor(Math.random() * 100) + 1);
+            await drawBars(arr); 
+            await insertionSort(arr);
+        }
+
+        async function unsortData() {
+            const arraySize = document.getElementById('array-size').value;
+            const arr = Array.from({ length: arraySize }, () => Math.floor(Math.random() * 100) + 1);
+            await drawBars(arr); 
+        }
+    </script>
+</body>
+</html>
