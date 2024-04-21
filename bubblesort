@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jersey+15&family=Jersey+20+Charted&display=swap" rel="stylesheet">
+    <title>Insertion Sort Visualization</title>
+    <title>Bubble Sort Visualization</title>
+    <style>
+        
+        header {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+       
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        #container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            width: 100%;
+            height: 300px;
+            background-color: #f0f0f0;
+            margin-bottom: 20px;
+        }
+        .bar {
+            position: relative;
+            width: 20px; 
+            margin: 0 1px;
+            background-color: #4CAF50;
+            text-align: center;
+            transition: height 0.3s, background-color 0.3s;
+        }
+        .bar:hover {
+            background-color: #2E8B57;
+        }
+        .bar span {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: white;
+        }
+        
+        #code-container {
+            margin: 0 auto; 
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 80%;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .code-line {
+            padding: 5px 10px;
+            border-radius: 3px;
+            background-color: #ddd;
+            margin-bottom: 5px;
+            transition: background-color 0.3s;
+        }
+        .highlight-1 { background-color: #FFE4B5; }
+        .highlight-2 { background-color: #ADD8E6; }
+        .highlight-3 { background-color: #98FB98; }
+        .highlight-4 { background-color: #FFB6C1; }
+        .highlight-5 { background-color: #B0E0E6; }
+        .highlight-6 { background-color: #FFD700; }
+        
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        h1{
+            
+            font-family: "Jersey 15", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Bubble Sort Visualization</h1>
+    </header>
+    <div id="container"></div>
+    <div class="controls">
+        <label for="array-size">Array Size:</label>
+        <input type="number" id="array-size" min="1" value="11">
+        <button onclick="startSort()">Start Sort</button>
+        <button onclick="unsortData()">Unsort Data</button>
+        <input type="range" id="speed-slider" min="1" max="100" value="50" onchange="setSpeed(this.value)">
+        <output for="speed-slider" id="speed-output">50</output>
+    </div>
+    <div id="code-container"></div>
+    <footer>
+        <p>&copy; 2024 Bubble Sort Visualization</p>
+    </footer>
+    
+    <script>
+        let sortingSpeed = 50; 
+        let codeContainer = document.getElementById('code-container');
+
+        function setSpeed(speed) {
+            sortingSpeed = speed;
+            document.getElementById('speed-output').textContent = speed;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function bubbleSort(arr) {
+            let n = arr.length;
+            let swapped;
+            do {
+                swapped = false;
+                for (let i = 0; i < n - 1; i++) {
+                   
+                    highlightCode(i);
+                    if (arr[i] > arr[i + 1]) {
+                       
+                        let temp = arr[i];
+                        arr[i] = arr[i + 1];
+                        arr[i + 1] = temp;
+                        swapped = true;
+                        await drawBubble(arr, i, i + 1); 
+                    }
+                }
+            } while (swapped);
+            
+            unhighlightCode();
+        }
+
+        async function drawBubble(arr, currIndex1, currIndex2) {
+            const container = document.getElementById('container');
+            container.innerHTML = ''; 
+            const containerHeight = container.clientHeight; 
+            const maxVal = Math.max(...arr); 
+            for (let i = 0; i < arr.length; i++) {
+                let barHeight = (arr[i] / maxVal) * containerHeight;
+                let bar = document.createElement('div');
+                bar.classList.add('bar');
+                bar.style.height = `${barHeight}px`;
+                if (i === currIndex1 || i === currIndex2) {
+                    bar.style.backgroundColor = 'orange'; 
+                } else {
+                    bar.style.backgroundColor = '#4CAF50'; 
+                }
+                let span = document.createElement('span');
+                span.textContent = arr[i]; 
+                bar.appendChild(span);
+                container.appendChild(bar);
+            }
+            await sleep(sortingSpeed); 
+        }
+
+        async function startSort() {
+            const arraySize = document.getElementById('array-size').value;
+            const arr = Array.from({ length: arraySize }, () => Math.floor(Math.random() * 100) + 1);
+            await drawBubble(arr); 
+            await bubbleSort(arr);
+        }
+
+        async function unsortData() {
+            const arraySize = document.getElementById('array-size').value;
+            const arr = Array.from({ length: arraySize }, () => Math.floor(Math.random() * 100) + 1);
+            await drawBubble(arr); 
+        }
+
+        function highlightCode(index) {
+            let line = document.getElementById(`line-${index}`);
+            if (line) {
+                line.classList.add(`highlight-${(index % 6) + 1}`);
+            }
+        }
+
+        function unhighlightCode() {
+            let lines = document.getElementsByClassName('code-line');
+            for (let i = 0; i < lines.length; i++) {
+                lines[i].className = 'code-line';
+            }
+        }
+
+        
+        const codeLines = [
+            "let n = arr.length;",
+            "let swapped;",
+            "do {",
+            "    swapped = false;",
+            "    for (let i = 0; i < n - 1; i++) {",
+            "        if (arr[i] > arr[i + 1]) {",
+            "            let temp = arr[i];",
+            "            arr[i] = arr[i + 1];",
+            "            arr[i + 1] = temp;",
+            "            swapped = true;",
+            "            await drawBubble(arr, i, i + 1);",
+            "        }",
+            "    }",
+            "} while (swapped);"
+        ];
+
+        codeLines.forEach((line, index) => {
+            let codeLine = document.createElement('div');
+            codeLine.classList.add('code-line');
+            codeLine.id = `line-${index}`;
+            codeLine.textContent = line;
+            codeContainer.appendChild(codeLine);
+        });
+    </script>
+</body>
+</html>
